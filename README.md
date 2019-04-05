@@ -1,7 +1,9 @@
 # jobcan-fe
 
 To press the jobcan's attendance button.
+
 Web scraping with selenium via ChromeDriver made internal inside the container.
+
 So we use GAE FE custom env.
 
 # deploy
