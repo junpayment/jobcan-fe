@@ -1,3 +1,5 @@
 runtime: custom
 env: flex
 service: jobcan-auto-touch
+env_variables:
+  SLACK_URL: overwrite

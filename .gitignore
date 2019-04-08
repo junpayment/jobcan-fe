@@ -17,3 +17,4 @@ appengine-generated/
 *.iml
 out
 gen
+app.yaml

@@ -22,14 +22,31 @@ func main() {
 	h.GET("/_ah/health")
 
 	j := r.Group("/jobcan")
+	j.Use(msg)
 	j.POST("/touch", func(c *gin.Context) {
-		msg := &Message{}
-		err := c.BindJSON(msg)
+		tmp, _ := c.Get("message")
+		msg := tmp.(Message)
+		err := jobcan.Touch(msg.Email, msg.Password)
 		if err != nil {
 			_ = c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
-		err = jobcan.Touch(msg.Email, msg.Password)
+		c.JSON(http.StatusOK, gin.H{"result": "ok"})
+	})
+	j.POST("/checkin", func(c *gin.Context) {
+		tmp, _ := c.Get("message")
+		msg := tmp.(*Message)
+		err := jobcan.Touch(msg.Email, msg.Password, jobcan.CheckIn)
+		if err != nil {
+			_ = c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"result": "ok"})
+	})
+	j.POST("/checkout", func(c *gin.Context) {
+		tmp, _ := c.Get("message")
+		msg := tmp.(*Message)
+		err := jobcan.Touch(msg.Email, msg.Password, jobcan.CheckOut)
 		if err != nil {
 			_ = c.AbortWithError(http.StatusBadRequest, err)
 			return
@@ -41,4 +58,15 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func msg(c *gin.Context) {
+	msg := &Message{}
+	err := c.BindJSON(msg)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	c.Set("message", msg)
+	c.Next()
 }
