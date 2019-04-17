@@ -9,8 +9,9 @@ import (
 )
 
 type Message struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	SlackName string `json:"slack_name"`
 }
 
 func main() {

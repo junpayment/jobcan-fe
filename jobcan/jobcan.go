@@ -25,6 +25,10 @@ func Touch(email, password string, opts ...string) error {
 	if len(opts) > 0 {
 		checkType = opts[0]
 	}
+	var slackName = ""
+	if len(opts) > 1 {
+		slackName = opts[1]
+	}
 
 	options := []agouti.Option{agouti.Browser("chrome")}
 	page, err := agouti.NewPage(seleniumEndpoint, options...)
@@ -43,11 +47,11 @@ func Touch(email, password string, opts ...string) error {
 	}
 	if len(checkType) > 0 {
 		if checkType == CheckIn && typ == "勤務中" {
-			_ = slack("出勤:打刻済です")
+			_ = slack(slackName, "出勤:打刻済です")
 			return nil
 		}
 		if checkType == CheckOut && typ == "退出中" {
-			_ = slack("退勤:打刻済です")
+			_ = slack(slackName, "退勤:打刻済です")
 			return nil
 		}
 	}
@@ -58,16 +62,17 @@ func Touch(email, password string, opts ...string) error {
 	}
 
 	loc, _ := time.LoadLocation("Asia/Tokyo")
-	_ = slack(checkType + ": 打刻しました: " + time.Now().In(loc).String())
+	_ = slack(slackName, checkType+": 打刻しました: "+time.Now().In(loc).String())
 
 	return nil
 }
 
-func slack(msg string) error {
+func slack(slackName, msg string) error {
+	out := fmt.Sprintf("@%s :%s:\n%s", slackName, slackName, msg)
 	p := struct {
 		Text string `json:"text"`
 	}{
-		Text: msg,
+		Text: out,
 	}
 	b, err := json.Marshal(p)
 	if err != nil {
